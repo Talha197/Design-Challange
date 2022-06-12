@@ -1,0 +1,42 @@
+#include <Servo.h>
+#include <QTRSensors.h>
+
+QTRSensors qtr;
+
+Servo myServo;        // Create Servo object to control the servo 
+
+int current,previous,count;
+const uint8_t SensorCount = 1;
+uint16_t sensorValue[SensorCount];
+
+void setup() 
+{ 
+  Serial.begin(9600);
+  myServo.attach(9);  // Servo is connected to digital pin 9
+  qtr.setTypeRC(); // configure the sensors
+  qtr.setSensorPins((const uint8_t[]){13}, SensorCount); //sensor 1 connected to pin 13
+} 
+
+void loop() 
+{
+  int pot = analogRead(A0);
+  int motorspeed = map(pot, 0, 1023, 0, 100);
+  //int motorspeed = 0;
+  myServo.writeMicroseconds(1500-motorspeed);
+  qtr.read(sensorValue);
+  if (sensorValue[0] > 500)
+  {
+    current = 0;
+  }
+  else 
+  current = 1;
+  if (current != previous)
+  {
+    if (current == 0)
+    {
+      count = count + 1;
+      Serial.println(count);
+    }   
+  }
+  previous = current;    
+}
